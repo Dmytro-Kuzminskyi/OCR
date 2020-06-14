@@ -1,0 +1,10 @@
+.vs/
+bin/*
+data/*
+obj/*
+Properties/*
+Resources/*
+*.resx
+*.csproj
+*.csproj.user
+*.sln
