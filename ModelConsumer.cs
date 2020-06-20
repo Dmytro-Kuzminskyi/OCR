@@ -7,16 +7,20 @@ namespace OCR
 {
 	class ModelConsumer
 	{
-        public static OutputData PredictDigit(float[] values)
+        public static float? PredictDigit(float[] values)
         {
+            if (values == null)
+                return null;
             var modelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + Resources.DIGITS_MODEL_PATH;
-            return Predict(modelPath, values);
+            return Predict(modelPath, values).Prediction;
         }
 
-        public static OutputData PredictLetter(float[] values)
+        public static float? PredictLetter(float[] values)
         {
+            if (values == null)
+                return null;
             var modelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + Resources.LETTERS_MODEL_PATH;
-            return Predict(modelPath, values);
+            return Predict(modelPath, values).Prediction;
         }
 
         private static OutputData Predict(string modelPath, float[] values)

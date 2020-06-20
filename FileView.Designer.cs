@@ -87,6 +87,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Unnamed";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FileView_FormClosing);
+            this.Load += new System.EventHandler(this.FileView_Load);
             this.fileToolStrip.ResumeLayout(false);
             this.fileToolStrip.PerformLayout();
             this.workspace.ResumeLayout(false);

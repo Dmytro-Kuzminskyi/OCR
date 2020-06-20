@@ -90,6 +90,11 @@ namespace OCR
 				caller.Text += "32 px";
 		}
 
+		private void ExtensionComboBox_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = true;
+		}
+
 		private void ValidationTextBox_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
@@ -186,7 +191,7 @@ namespace OCR
 			bw.RunWorkerCompleted -= WorkCompleted;
 		}
 
-		private void DoWork(object sender, DoWorkEventArgs e)
+        private void DoWork(object sender, DoWorkEventArgs e)
 		{
 			var currentProgress = inputProgressBar.Value;
 			var filesProcessed = 0;
