@@ -15,8 +15,8 @@ namespace OCR
 
         private void okButton_Click(object sender, EventArgs e)
         {
-			if (templateComboBox.SelectedItem.ToString() == "Bank Receipt")
-				docTemplate = DocTemplate.BankReceipt;
+			if (templateComboBox.SelectedItem.ToString() == "Person Evidence")
+				docTemplate = DocTemplate.PersonEvidence;
         }
 
         private void TemplateComboBox_KeyPress(object sender, KeyPressEventArgs e)

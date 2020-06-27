@@ -8,7 +8,7 @@ namespace OCR
 		[VectorType(64)]
 		public float[] PixelValues;
 
-		[ColumnName("Number"), LoadColumn(64)]
-		public float Number { get; set; }
+		[ColumnName("InputClass"), LoadColumn(64)]
+		public string InputClass { get; set; }
 	}
 }

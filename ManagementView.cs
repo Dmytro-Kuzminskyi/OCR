@@ -22,7 +22,7 @@ namespace OCR
 			InitializeComponent();
             loadingImage.Image = Resources.loading;
             bw = new BackgroundWorker();
-            rootDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\";
+            rootDir = Directory.GetCurrentDirectory();
             CheckModelAccessability("Digits", Resources.DIGITS_MODEL_PATH);
             trainSetTextBox.GotFocus += (s, e) => { MainForm.HideCaret((s as TextBox).Handle); };
             testSetTextBox.GotFocus += (s, e) => { MainForm.HideCaret((s as TextBox).Handle); };

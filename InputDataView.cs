@@ -258,7 +258,7 @@ namespace OCR
                     {
                         for (var i = 0; i < 8; i++)
                         {
-                            var pixels = ImageProcessor.CountPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
+                            var pixels = ImageProcessor.CountBlackPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
                             output += pixels + ",";
                         }
                     }

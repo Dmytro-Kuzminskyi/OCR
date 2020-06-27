@@ -6,6 +6,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 
 namespace OCR
 {
@@ -36,14 +37,15 @@ namespace OCR
             return false;
         }
 
-        public static int CountPixels(Bitmap b, int startX, int startY, int toX, int toY)
+        public static int CountBlackPixels(Bitmap b, int startX, int startY, int toX, int toY)
         {
             var matches = 0;
             for (int y = startY; y < toY; y++)
             {
                 for (int x = startX; x < toX; x++)
                 {
-                    if (b.GetPixel(x, y) == Color.FromArgb(255, 0, 0, 0)) matches++;
+                    if (b.GetPixel(x, y) == Color.FromArgb(255, 0, 0, 0)) 
+                        matches++;
                 }
             }
             return matches;
@@ -53,25 +55,8 @@ namespace OCR
         {
             var width = image.Width;
             var height = image.Height;
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < image.Width; x++)
-                {
-                    var c = image.GetPixel(x, y);
-                    var scale = c.R + c.G + c.B;
-                    var isWhite = scale > 600 ? true : false;
-                    if (isWhite)
-                    {
-                        c = Color.FromArgb(255, 255, 255, 255);
-                    }
-                    else
-                    {
-                        c = Color.FromArgb(255, 0, 0, 0);
-                    }
-                    image.SetPixel(x, y, c);
-                }
-            }
-            if (CountPixels(image, 0, 0, image.Width - 1, image.Height - 1) < 100)
+            var count = CountBlackPixels(image, 0, 0, width, height);
+            if (count < image.Width * image.Height * 0.03)
                 return null;
             var partWidth = width / 8;
             var partHeight = height / 8;
@@ -83,7 +68,7 @@ namespace OCR
                 {
                     for (int i = 0; i < 8; i++)
                     {
-                        PixelValues[k++] = CountPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
+                        PixelValues[k++] = CountBlackPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
                     }
                 }
             }
@@ -98,6 +83,20 @@ namespace OCR
                     image.Dispose();
             }
             return PixelValues;
+        }
+
+        public static Bitmap PrepareImage(Bitmap image)
+        {
+            var width = image.Width;
+            var height = image.Height;
+            var img = new Bitmap(Resources.cell, width, height);
+            using var g = Graphics.FromImage(img);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            int w = width / 12;
+            int h = height / 12;
+            g.DrawImage(image, new Rectangle(0, 0, width, height), new Rectangle(w, h, width - 2 * w, height - 2 * h), GraphicsUnit.Pixel);
+            return img;
         }
 
         public static void ReplacePrediction(string value, Bitmap dest, Rectangle replacementArea)
@@ -140,8 +139,13 @@ namespace OCR
                     img = null;
                     break;
             }
-            using var g = Graphics.FromImage(dest);
-            g.DrawImage(img, new Point(replacementArea.X, replacementArea.Y));
+            if (img != null)
+            {
+                using var g = Graphics.FromImage(dest);
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawImage(img, new Point(replacementArea.X, replacementArea.Y));
+            }
         }
     }
 }

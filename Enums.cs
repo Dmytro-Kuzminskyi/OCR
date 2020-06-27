@@ -2,6 +2,6 @@
 {
     public enum DocTemplate
     {
-        BankReceipt
+        PersonEvidence
     }
 }

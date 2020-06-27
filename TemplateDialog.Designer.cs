@@ -37,7 +37,7 @@
             // 
             this.templateComboBox.FormattingEnabled = true;
             this.templateComboBox.Items.AddRange(new object[] {
-            "Bank Receipt"});
+            "Person Evidence"});
             this.templateComboBox.Location = new System.Drawing.Point(66, 25);
             this.templateComboBox.Name = "templateComboBox";
             this.templateComboBox.Size = new System.Drawing.Size(150, 23);

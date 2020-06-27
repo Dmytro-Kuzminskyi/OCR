@@ -7,7 +7,7 @@ namespace OCR
 {
 	class ModelConsumer
 	{
-        public static float? PredictDigit(float[] values)
+        public static string PredictDigit(float[] values)
         {
             if (values == null)
                 return null;
@@ -15,7 +15,7 @@ namespace OCR
             return Predict(modelPath, values).Prediction;
         }
 
-        public static float? PredictLetter(float[] values)
+        public static string PredictLetter(float[] values)
         {
             if (values == null)
                 return null;

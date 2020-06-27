@@ -15,16 +15,16 @@ namespace OCR
                                     columns: new[]
                                     {
                                         new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("Number", DataKind.Single, 64)
+                                        new TextLoader.Column("InputClass", DataKind.String, 64)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
-            var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "Number").
+            var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "InputClass").
                     Append(mlContext.Transforms.Concatenate("Features", nameof(InputData.PixelValues)));
             var trainer = mlContext.MulticlassClassification.Trainers.LightGbm(labelColumnName: "Label", 
                 featureColumnName: "Features", numberOfLeaves: nol, minimumExampleCountPerLeaf: mecpl, learningRate: lr, 
                 numberOfIterations: noi);
-            var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedNumber", "PredictedLabel"));
+            var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedClass", "PredictedLabel"));
             ITransformer trainedModel = trainingPipeline.Fit(trainData);
             SaveModel(mlContext, trainedModel, modelOutputPath, trainData.Schema);
         }
@@ -36,7 +36,7 @@ namespace OCR
                                     columns: new[]
                                     {
                                         new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("Number", DataKind.Single, 64)
+                                        new TextLoader.Column("InputClass", DataKind.String, 64)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
@@ -44,19 +44,19 @@ namespace OCR
                                     columns: new[]
                                     {
                                         new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("Number", DataKind.Single, 64)
+                                        new TextLoader.Column("InputClass", DataKind.String, 64)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
-            var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "Number").
+            var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "InputClass").
                     Append(mlContext.Transforms.Concatenate("Features", nameof(InputData.PixelValues)));
             var trainer = mlContext.MulticlassClassification.Trainers.LightGbm(labelColumnName: "Label",
                 featureColumnName: "Features", numberOfLeaves: nol, minimumExampleCountPerLeaf: mecpl, learningRate: lr,
                 numberOfIterations: noi);
-            var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedNumber", "PredictedLabel"));
+            var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedClass", "PredictedLabel"));
             ITransformer trainedModel = trainingPipeline.Fit(trainData);
             var predictions = trainedModel.Transform(testData);
-            var metrics = mlContext.MulticlassClassification.Evaluate(data: predictions, labelColumnName: "Number", scoreColumnName: "Score");
+            var metrics = mlContext.MulticlassClassification.Evaluate(data: predictions, labelColumnName: "InputClass", scoreColumnName: "Score");
             PrintMulticlassClassificationMetrics(metrics, metricsContainer);
             SaveModel(mlContext, trainedModel, modelOutputPath, trainData.Schema);
         }
