@@ -99,6 +99,26 @@ namespace OCR
             return img;
         }
 
+        public static void ReplaceSelector(Bitmap dest, Rectangle replacementArea)
+        {
+            Bitmap img = null;
+            var width = dest.Width;
+            var height = dest.Height;
+            var count = CountBlackPixels(dest, 0, 0, width, height);
+            if (count > dest.Width * dest.Height * 0.05)
+            {            
+                ResourceManager rm = Resources.ResourceManager;
+                img = new Bitmap((Bitmap)rm.GetObject("letter_x"), replacementArea.Size);
+            }
+            if (img != null)
+            {
+                using var g = Graphics.FromImage(dest);
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawImage(img, new Point(replacementArea.X, replacementArea.Y));
+            }
+        }
+
         public static void ReplacePrediction(string value, Bitmap dest, Rectangle replacementArea)
         {
             Bitmap img;
@@ -134,6 +154,84 @@ namespace OCR
                     break;
                 case "9":
                     img = new Bitmap((Bitmap)rm.GetObject("digit_9"), replacementArea.Size);
+                    break;
+                case "a":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_a"), replacementArea.Size);
+                    break;
+                case "b":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_b"), replacementArea.Size);
+                    break;
+                case "c":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_c"), replacementArea.Size);
+                    break;
+                case "d":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_d"), replacementArea.Size);
+                    break;
+                case "e":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_e"), replacementArea.Size);
+                    break;
+                case "f":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_f"), replacementArea.Size);
+                    break;
+                case "g":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_g"), replacementArea.Size);
+                    break;
+                case "h":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_h"), replacementArea.Size);
+                    break;
+                case "i":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_i"), replacementArea.Size);
+                    break;
+                case "j":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_j"), replacementArea.Size);
+                    break;
+                case "k":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_k"), replacementArea.Size);
+                    break;
+                case "l":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_l"), replacementArea.Size);
+                    break;
+                case "m":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_m"), replacementArea.Size);
+                    break;
+                case "n":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_n"), replacementArea.Size);
+                    break;
+                case "o":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_o"), replacementArea.Size);
+                    break;
+                case "p":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_p"), replacementArea.Size);
+                    break;
+                case "q":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_q"), replacementArea.Size);
+                    break;
+                case "r":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_r"), replacementArea.Size);
+                    break;
+                case "s":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_s"), replacementArea.Size);
+                    break;
+                case "t":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_t"), replacementArea.Size);
+                    break;
+                case "u":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_u"), replacementArea.Size);
+                    break;
+                case "v":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_v"), replacementArea.Size);
+                    break;
+                case "w":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_w"), replacementArea.Size);
+                    break;
+                case "x":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_x"), replacementArea.Size);
+                    break;
+                case "y":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_y"), replacementArea.Size);
+                    break;
+                case "z":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_z"), replacementArea.Size);
                     break;
                 default:
                     img = null;

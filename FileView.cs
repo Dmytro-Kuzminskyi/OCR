@@ -143,7 +143,7 @@ namespace OCR
 			}
 			else
 			{
-				//MessageBox.Show("File is successfully converted!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show("File is successfully converted!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			bw.DoWork -= DoWork;
 			bw.RunWorkerCompleted -= WorkCompleted;
@@ -198,7 +198,7 @@ namespace OCR
 			}
 			else if (type == "selector")
             {
-
+				ImageProcessor.ReplaceSelector(convertedImage, replacementArea);
             }
 			bmp.Dispose();
 		}
