@@ -10,10 +10,11 @@ namespace OCR
 		[DllImport("user32")]
 		public static extern bool HideCaret(IntPtr hWnd);
 
-		InputDataView inputDataView;
-		ManagementView managementView;
-		FileView fileView;
+		InputDataView inputDataView = null;
+		ManagementView managementView = null;
+		FileView fileView = null;
 		bool isFileOpened = false;
+
 		public MainForm()
 		{
 			InitializeComponent();

@@ -22,18 +22,21 @@ namespace OCR
 		Image<Bgr, byte> inputImage = null;
 		Image<Gray, byte> outputImage = null;
 		int cellCount = 0;
+		string filePath = "";
 		string templatePath = "";
 		List<Rectangle> BBoxes;
 		readonly MainForm caller;
 		readonly BackgroundWorker bw;
 		DocTemplate? template = null;
 		Bitmap convertedImage = null;
+		ConvertedDocumentView convertedDocumentView = null;
 
 		public FileView(MainForm f, string path)
 		{
 			caller = f;
+			filePath = path;
 			InitializeComponent();
-			RenderDocument(path);
+			RenderDocument(filePath);
 			bw = new BackgroundWorker();
 			BBoxes = new List<Rectangle>();
 		}
@@ -97,6 +100,8 @@ namespace OCR
 				try
 				{
 					MaximumSize = new Size(width + 16, height + 39);
+					if (convertedDocumentView != null)
+						convertedDocumentView.MaximumSize = MaximumSize;
 				}
 				catch (Exception ex) 
 				{
@@ -122,10 +127,17 @@ namespace OCR
 		{
 			caller.DeleteSelfReference(this);
 			Dispose();
+			if (convertedDocumentView != null)
+				convertedDocumentView.InitiateClosing();
 			caller.CloseFileState();
 		}
 
-		private void ConvertButton_Click(object sender, EventArgs e)
+		public void DeleteReference()
+        {
+			convertedDocumentView = null;
+		}
+
+			private void ConvertButton_Click(object sender, EventArgs e)
 		{
 			bw.DoWork += DoWork;
 			bw.RunWorkerCompleted += WorkCompleted;
@@ -143,6 +155,13 @@ namespace OCR
 			}
 			else
 			{
+				convertedDocumentView = new ConvertedDocumentView(caller, this, convertButton, convertedImage, filePath)
+				{
+					Text = Text,
+					Location = new Point(Location.X + 50, Location.Y + 25),
+					MdiParent = caller
+				};
+				convertedDocumentView.Show();
 				MessageBox.Show("File is successfully converted!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			bw.DoWork -= DoWork;
@@ -153,8 +172,7 @@ namespace OCR
 		{
 			BBoxes.Sort((item1, item2) => item1.Y.CompareTo(item2.Y));
 			using var reader = new StreamReader(templatePath);
-			ParseJSON(reader);
-			documentWrapper.Image = convertedImage;
+			ParseJSON(reader);			
 		}
 
 		private void ParseJSON(StreamReader reader)
