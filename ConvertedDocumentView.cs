@@ -1,10 +1,17 @@
-﻿using Spire.Pdf;
+﻿using OCR.Properties;
+using Spire.Pdf;
 using Spire.Pdf.Graphics;
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+using Emgu.CV.CvEnum;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace OCR
 {
@@ -13,21 +20,86 @@ namespace OCR
 		readonly MainForm owner;
 		readonly FileView caller;
 		ToolStripButton convertBtn;
+		List<KeyValuePair<string, string>> predictions;
+		Image<Bgr, byte> inputImage = null;
+		Image<Gray, byte> outputImage = null;
+		DocTemplate template;
+		List<Rectangle> BBoxes;
+		Size inputImageSize;
+		Bitmap img;
 		string path = "";
 		bool isSaved = false, isSaveInvoked = false;
-		public ConvertedDocumentView(MainForm o, FileView c, ToolStripButton b, Bitmap img, string p)
+		public ConvertedDocumentView(MainForm o, FileView c, ToolStripButton b, List<KeyValuePair<string, string>> pred, DocTemplate t, Size s, string p)
 		{
 			owner = o;
 			caller = c;
 			convertBtn = b;
+			predictions = pred;
+			template = t;
+			inputImageSize = s;
 			path = p;
 			InitializeComponent();
-			documentWrapper.Size = new Size(img.Width, img.Height);
-			documentWrapper.Image = img;
-			int width = owner.ClientSize.Width > img.Width + 16 ? img.Width : owner.ClientSize.Width - 28;
-			int height = owner.ClientSize.Height > img.Height + 67 ? img.Height + 28 : owner.ClientSize.Height - 75;
+			BBoxes = new List<Rectangle>();
+		}
+
+		private void ConvertedDocumentView_Load(object sender, EventArgs e)
+		{
+			List<Rectangle> tmp = new List<Rectangle>();
+			if (template == DocTemplate.PersonEvidence)
+            {
+				img = Resources.PEF;
+			}
+			documentWrapper.Size = inputImageSize;
+			int width = owner.ClientSize.Width > inputImageSize.Width + 16 ? inputImageSize.Width : owner.ClientSize.Width - 28;
+			int height = owner.ClientSize.Height > inputImageSize.Height + 67 ? inputImageSize.Height + 28 : owner.ClientSize.Height - 75;
 			ClientSize = new Size(width, height);
 			MaximumSize = new Size(width + 16, height + 39);
+			inputImage = img.ToImage<Bgr, byte>();
+			outputImage = inputImage.Convert<Gray, byte>().ThresholdBinary(new Gray(100), new Gray(255));
+			VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
+			Mat hierarhy = new Mat();
+			CvInvoke.FindContours(outputImage, contours, hierarhy, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+			Dictionary<int, double> contoursDict = new Dictionary<int, double>();
+			for (int i = 0; i < contours.Size; i++)
+			{
+				double area = CvInvoke.ContourArea(contours[i]);
+				contoursDict.Add(i, area);
+			}
+
+			var items = contoursDict.OrderByDescending(i => i.Value).Skip(1).Take(predictions.Count);
+			foreach (var item in items)
+			{
+				int key = int.Parse(item.Key.ToString());
+				tmp.Add(CvInvoke.BoundingRectangle(contours[key]));
+			}
+			tmp.Sort((item1, item2) => item1.Y.CompareTo(item2.Y));
+			foreach (var bbox in tmp)
+            {
+				int w = bbox.Width;
+				int h = bbox.Height;
+				int x = bbox.X + w / 10;
+				int y = bbox.Y + h / 10;
+				w -= 2 * w / 10;
+				h -= 2 * h / 10;
+				BBoxes.Add(new Rectangle(x, y, w, h));
+			}
+			for (int i = 0; i < predictions.Count; i++)
+            {
+				Replace(predictions.ElementAt(i).Value, BBoxes.ElementAt(i));
+			}
+			documentWrapper.Image = new Bitmap(img, inputImageSize);
+		}
+
+		private void Replace(string prediction, Rectangle replacementArea)
+		{ 
+			if (prediction == null)
+            {
+
+            }
+            else
+            {
+				ImageProcessor.ReplacePrediction(prediction, img, replacementArea);
+			}
 		}
 
 		public void InitiateClosing()
@@ -123,9 +195,9 @@ namespace OCR
 			{
 				pdoc.Print();
 			}
-		}
+		}     
 
-		private void DD_Print(object sender, PrintPageEventArgs e)
+        private void DD_Print(object sender, PrintPageEventArgs e)
 		{
 			//double cmToUnits = 100 / 2.54;
 			var img = documentWrapper.Image;

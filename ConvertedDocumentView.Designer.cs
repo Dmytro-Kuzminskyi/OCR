@@ -131,6 +131,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Unnamed";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConvertedDocumentView_FormClosing);
+            this.Load += new System.EventHandler(this.ConvertedDocumentView_Load);
             this.convertedDocumentToolStrip.ResumeLayout(false);
             this.convertedDocumentToolStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.documentWrapper)).EndInit();

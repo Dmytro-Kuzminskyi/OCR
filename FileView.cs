@@ -25,10 +25,10 @@ namespace OCR
 		string filePath = "";
 		string templatePath = "";
 		List<Rectangle> BBoxes;
+		List<KeyValuePair<string, string>> predictions;
 		readonly MainForm caller;
 		readonly BackgroundWorker bw;
-		DocTemplate? template = null;
-		Bitmap convertedImage = null;
+		DocTemplate template;
 		ConvertedDocumentView convertedDocumentView = null;
 
 		public FileView(MainForm f, string path)
@@ -39,6 +39,7 @@ namespace OCR
 			RenderDocument(filePath);
 			bw = new BackgroundWorker();
 			BBoxes = new List<Rectangle>();
+			predictions = new List<KeyValuePair<string, string>>();
 		}
 
 		private void FileView_Load(object sender, EventArgs e)
@@ -56,7 +57,7 @@ namespace OCR
 				using (var img = new Bitmap(documentWrapper.Image))
 					img.Save(imgPath);
 				inputImage = new Image<Bgr, byte>(imgPath);
-				outputImage = inputImage.Convert<Gray, byte>().ThresholdBinary(new Gray(100), new Gray(255));
+				outputImage = inputImage.Convert<Gray, byte>().ThresholdBinary(new Gray(200), new Gray(500));
 				if (template == DocTemplate.PersonEvidence)
 				{
 					templatePath =  Path.Combine(Directory.GetCurrentDirectory(), Resources.PERSON_EVIDENCE_TEMPLATE_PATH);
@@ -142,9 +143,7 @@ namespace OCR
 			bw.DoWork += DoWork;
 			bw.RunWorkerCompleted += WorkCompleted;
 			bw.RunWorkerAsync();
-			convertButton.Enabled = false;
-			if (template == DocTemplate.PersonEvidence)
-				convertedImage = Resources.PEF;
+			convertButton.Enabled = false;			
 		}
 		private void WorkCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
@@ -155,7 +154,8 @@ namespace OCR
 			}
 			else
 			{
-				convertedDocumentView = new ConvertedDocumentView(caller, this, convertButton, convertedImage, filePath)
+				convertedDocumentView = new ConvertedDocumentView(caller, this, convertButton, 
+					predictions, template, new Size(inputImage.Width, inputImage.Height), filePath)
 				{
 					Text = Text,
 					Location = new Point(Location.X + 50, Location.Y + 25),
@@ -171,7 +171,7 @@ namespace OCR
 		private void DoWork(object sender, DoWorkEventArgs e)
 		{
 			BBoxes.Sort((item1, item2) => item1.Y.CompareTo(item2.Y));
-			using var reader = new StreamReader(templatePath);
+            using var reader = new StreamReader(templatePath);
 			ParseJSON(reader);			
 		}
 
@@ -187,38 +187,39 @@ namespace OCR
 				var count = int.Parse(t["count"].ToString());
 				var items = BBoxes.Skip(skipItemsCount).Take(count);
 				skipItemsCount += count;
-				foreach (var item in items) 
+				foreach (var bbox in items) 
 				{
-					Replace(type, item);
+					int w = bbox.Width;
+					int h = bbox.Height;
+					int x = bbox.X + w / 10;
+					int y = bbox.Y + h / 10;
+					w -= 2 * w / 10;
+					h -= 2 * h / 10;
+					var pair = new KeyValuePair<string, string>(type, GetPrediction(type, new Rectangle(x, y, w, h)));
+					predictions.Add(pair);
 				}
 			}
 		}
 
-		private void Replace(string type, Rectangle replacementArea)
+		private string GetPrediction(string type, Rectangle replacementArea)
 		{
-			string output;
-			Bitmap preprocessedImage;
+			string output = null;
 			Bitmap bmp = new Bitmap(Resources.cell, new Size(32, 32));
 			using var g = Graphics.FromImage(bmp);
 			g.InterpolationMode = InterpolationMode.NearestNeighbor;
 			g.SmoothingMode = SmoothingMode.AntiAlias;
 			g.DrawImage(outputImage.ToBitmap(), new Rectangle(new Point(0, 0), new Size(32, 32)), replacementArea, GraphicsUnit.Pixel);
-			preprocessedImage = ImageProcessor.PrepareImage(bmp);
+			//bmp.Save(@"E:\test.jpg");
 			if (type == "digit")
 			{
-				output = ModelConsumer.PredictDigit(ImageProcessor.ConvertImageToData(preprocessedImage));
-				ImageProcessor.ReplacePrediction(output, convertedImage, replacementArea);
+				output = ModelConsumer.PredictDigit(ImageProcessor.ConvertImageToData(bmp));
 			}
 			else if (type == "letter")
 			{
-				output = ModelConsumer.PredictLetter(ImageProcessor.ConvertImageToData(preprocessedImage));
-				ImageProcessor.ReplacePrediction(output, convertedImage, replacementArea);
+				output = ModelConsumer.PredictLetter(ImageProcessor.ConvertImageToData(bmp));
 			}
-			else if (type == "selector")
-            {
-				ImageProcessor.ReplaceSelector(convertedImage, replacementArea);
-            }
 			bmp.Dispose();
+			return output;
 		}
 	}
 }
