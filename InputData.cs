@@ -4,11 +4,11 @@ namespace OCR
 {
 	class InputData
 	{
-		[ColumnName("PixelValues"), LoadColumn(0, 63)]
-		[VectorType(64)]
+		[ColumnName("PixelValues"), LoadColumn(0, 255)]
+		[VectorType(256)]
 		public float[] PixelValues;
 
-		[ColumnName("InputClass"), LoadColumn(64)]
+		[ColumnName("InputClass"), LoadColumn(256)]
 		public string InputClass { get; set; }
 	}
 }

@@ -252,11 +252,11 @@ namespace OCR
                     var image = new Bitmap(inputFP);
                     var imageWidth = image.Width;
                     var imageHeight = image.Height;
-                    var partWidth = imageWidth / 8;
-                    var partHeight = imageHeight / 8;
-                    for (var j = 0; j < 8; j++)
+                    var partWidth = imageWidth / int.Parse(Resources.PARTITION);
+                    var partHeight = imageHeight / int.Parse(Resources.PARTITION);
+                    for (var j = 0; j < int.Parse(Resources.PARTITION); j++)
                     {
-                        for (var i = 0; i < 8; i++)
+                        for (var i = 0; i < int.Parse(Resources.PARTITION); i++)
                         {
                             var pixels = ImageProcessor.CountBlackPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
                             output += pixels + ",";

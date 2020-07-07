@@ -14,8 +14,8 @@ namespace OCR
             var trainData = mlContext.Data.LoadFromTextFile(path: trainDataPath,
                                     columns: new[]
                                     {
-                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("InputClass", DataKind.String, 64)
+                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
+                                        new TextLoader.Column("InputClass", DataKind.String, 256)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
@@ -35,16 +35,16 @@ namespace OCR
             var trainData = mlContext.Data.LoadFromTextFile(path: trainDataPath,
                                     columns: new[]
                                     {
-                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("InputClass", DataKind.String, 64)
+                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
+                                        new TextLoader.Column("InputClass", DataKind.String, 256)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
             var testData = mlContext.Data.LoadFromTextFile(path: testDataPath,
                                     columns: new[]
                                     {
-                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 63),
-                                        new TextLoader.Column("InputClass", DataKind.String, 64)
+                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
+                                        new TextLoader.Column("InputClass", DataKind.String, 256)
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');

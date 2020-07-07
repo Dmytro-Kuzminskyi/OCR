@@ -58,15 +58,15 @@ namespace OCR
             var count = CountBlackPixels(image, 0, 0, width, height);
             if (count < image.Width * image.Height * 0.03)
                 return null;
-            var partWidth = width / 8;
-            var partHeight = height / 8;
-            var PixelValues = new float[64];
+            var partWidth = width / int.Parse(Resources.PARTITION);
+            var partHeight = height / int.Parse(Resources.PARTITION);
+            var PixelValues = new float[int.Parse(Resources.PARTITION)*int.Parse(Resources.PARTITION)];
             var k = 0;
             try
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < int.Parse(Resources.PARTITION); j++)
                 {
-                    for (int i = 0; i < 8; i++)
+                    for (int i = 0; i < int.Parse(Resources.PARTITION); i++)
                     {
                         PixelValues[k++] = CountBlackPixels(image, i * partWidth, j * partHeight, (i + 1) * partWidth - 1, (j + 1) * partHeight - 1);
                     }

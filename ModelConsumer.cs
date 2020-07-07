@@ -11,7 +11,7 @@ namespace OCR
         {
             if (values == null)
                 return null;
-            var modelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + Resources.DIGITS_MODEL_PATH;
+            var modelPath = Directory.GetCurrentDirectory() + @"\" + Resources.DIGITS_MODEL_PATH;
             return Predict(modelPath, values).Prediction;
         }
 
@@ -19,7 +19,7 @@ namespace OCR
         {
             if (values == null)
                 return null;
-            var modelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + Resources.LETTERS_MODEL_PATH;
+            var modelPath = Directory.GetCurrentDirectory() + @"\" + Resources.LETTERS_MODEL_PATH;
             return Predict(modelPath, values).Prediction;
         }
 
