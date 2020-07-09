@@ -99,24 +99,15 @@ namespace OCR
             return img;
         }
 
-        public static void ReplaceSelector(Bitmap dest, Rectangle replacementArea)
+        public static string ReplaceSelector(Bitmap dest, Rectangle replacementArea)
         {
-            Bitmap img = null;
             var width = dest.Width;
             var height = dest.Height;
             var count = CountBlackPixels(dest, 0, 0, width, height);
-            if (count > dest.Width * dest.Height * 0.05)
-            {            
-                ResourceManager rm = Resources.ResourceManager;
-                img = new Bitmap((Bitmap)rm.GetObject("letter_x"), replacementArea.Size);
-            }
-            if (img != null)
-            {
-                using var g = Graphics.FromImage(dest);
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawImage(img, new Point(replacementArea.X, replacementArea.Y));
-            }
+            if (count < width * height * 0.03)
+                return "false";
+            else
+                return "true";
         }
 
         public static void ReplacePrediction(string value, Bitmap dest, Rectangle replacementArea)
@@ -232,6 +223,9 @@ namespace OCR
                     break;
                 case "z":
                     img = new Bitmap((Bitmap)rm.GetObject("letter_z"), replacementArea.Size);
+                    break;
+                case "true":
+                    img = new Bitmap((Bitmap)rm.GetObject("letter_x"), replacementArea.Size);
                     break;
                 default:
                     img = null;

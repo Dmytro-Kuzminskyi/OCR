@@ -222,6 +222,11 @@ namespace OCR
 			{
 				output = ModelConsumer.PredictLetter(ImageProcessor.ConvertImageToData(bmp));
 			}
+			else if (type == "selector")
+            {
+				output = ImageProcessor.ProcessSelector(bmp, replacementArea);
+
+			}
 			bmp.Dispose();
 			return output;
 		}
