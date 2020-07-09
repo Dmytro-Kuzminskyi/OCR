@@ -77,7 +77,6 @@ namespace OCR
 					double area = CvInvoke.ContourArea(contours[i]);
 					contoursDict.Add(i, area);
 				}
-
 				var items = contoursDict.OrderByDescending(i => i.Value).Skip(1).Take(cellCount);
 				foreach (var item in items)
 				{
@@ -208,26 +207,29 @@ namespace OCR
 		private string GetPrediction(string type, Rectangle replacementArea)
 		{
 			string output = null;
-			Bitmap bmp = new Bitmap(Resources.cell, new Size(32, 32));
+			Bitmap bmp = new Bitmap(Resources.cell, new Size(64, 64));
 			using var g = Graphics.FromImage(bmp);
 			g.InterpolationMode = InterpolationMode.NearestNeighbor;
 			g.SmoothingMode = SmoothingMode.AntiAlias;
-			g.DrawImage(outputImage.ToBitmap(), new Rectangle(new Point(0, 0), new Size(32, 32)), replacementArea, GraphicsUnit.Pixel);
-			//bmp.Save(@"E:\test.jpg");
+			g.DrawImage(outputImage.ToBitmap(), new Rectangle(new Point(0, 0), new Size(64, 64)), replacementArea, GraphicsUnit.Pixel);
+			bmp.Save(@"E:\before.jpg");
+			var preprocessedImg = ImageProcessor.PrepareImage(bmp);
+			preprocessedImg.Save(@"E:\after.jpg");
 			if (type == "digit")
 			{
-				output = ModelConsumer.PredictDigit(ImageProcessor.ConvertImageToData(bmp));
+				output = ModelConsumer.PredictDigit(ImageProcessor.ConvertImageToData(preprocessedImg));
 			}
 			else if (type == "letter")
 			{
-				output = ModelConsumer.PredictLetter(ImageProcessor.ConvertImageToData(bmp));
+				output = ModelConsumer.PredictLetter(ImageProcessor.ConvertImageToData(preprocessedImg));
 			}
 			else if (type == "selector")
             {
-				output = ImageProcessor.ProcessSelector(bmp, replacementArea);
+				output = ImageProcessor.ProcessSelector(bmp);
 
 			}
 			bmp.Dispose();
+			preprocessedImg.Dispose();
 			return output;
 		}
 	}

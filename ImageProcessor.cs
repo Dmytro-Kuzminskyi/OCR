@@ -1,5 +1,9 @@
 ﻿using System;
 using OCR.Properties;
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+using Emgu.CV.CvEnum;
 using System.Resources;
 using System.IO;
 using System.Linq;
@@ -7,6 +11,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using System.Collections.Generic;
 
 namespace OCR
 {
@@ -85,21 +90,144 @@ namespace OCR
             return PixelValues;
         }
 
-        public static Bitmap PrepareImage(Bitmap image)
+        private static Point CenterOfMass(Bitmap img)
         {
-            var width = image.Width;
-            var height = image.Height;
-            var img = new Bitmap(Resources.cell, width, height);
-            using var g = Graphics.FromImage(img);
-            g.InterpolationMode = InterpolationMode.NearestNeighbor;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            int w = width / 12;
-            int h = height / 12;
-            g.DrawImage(image, new Rectangle(0, 0, width, height), new Rectangle(w, h, width - 2 * w, height - 2 * h), GraphicsUnit.Pixel);
-            return img;
+            int sumX = 0;
+            int sumY = 0;
+            int num = 0;
+            for (int j = 0; j < img.Height; j++)
+                for (int i = 0; i < img.Width; i++)
+                {
+                    if (img.GetPixel(i, j) == Color.FromArgb(255, 0, 0, 0))
+                    {
+                        sumX += i;
+                        sumY += j;
+                        num++;
+                    }
+                }
+            return new Point(sumX / num, sumY / num);
         }
 
-        public static string ReplaceSelector(Bitmap dest, Rectangle replacementArea)
+        private static Bitmap GetCenteredImage(Bitmap img, Point com)
+        {
+            var centerX = img.Width / 2 - 1;
+            var centerY = img.Height / 2 - 1;
+            var offsetX = centerX - com.X;
+            var offsetY = centerY - com.Y;
+            var bmp = new Bitmap(img.Width, img.Height);
+            using var g = Graphics.FromImage(bmp);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TranslateTransform(offsetX, offsetY);
+            g.Clear(Color.White);
+            g.DrawImage(img, 0, 0);
+            return bmp;
+        }
+
+        public static Rectangle FindImageBbox(Bitmap img)
+        {
+            int top = 0;
+            int down = 0;
+            int left = 0;
+            int right = 0;
+            for (int j = 0; j < img.Height; j++)
+            {
+                for (int i = 0; i < img.Width; i++)
+                {
+                    if (img.GetPixel(i, j) == Color.FromArgb(255, 0, 0, 0))
+                    {
+                        top = j;
+                        break;
+                    }
+                }
+                if (top != 0)
+                    break;
+            }
+            for (int j = img.Height - 1; j >= 0; j--)
+            {
+                for (int i = img.Width - 1; i >= 0; i--)
+                {
+                    if (img.GetPixel(i, j) == Color.FromArgb(255, 0, 0, 0))
+                    {
+                        down = j;
+                        break;
+                    }
+                }
+                if (down != 0)
+                    break;
+            }
+            for (int i = 0; i < img.Width; i++)
+            {
+                for (int j = 0; j < img.Height; j++)
+                {
+                    if (img.GetPixel(i, j) == Color.FromArgb(255, 0, 0, 0))
+                    {
+                        left = i;
+                        break;
+                    }
+                }
+                if (left != 0)
+                    break;
+            }
+            for (int i = img.Width - 1; i >= 0; i--)
+            {
+                for (int j = img.Height - 1; j >= 0; j--)
+                {
+                    if (img.GetPixel(i, j) == Color.FromArgb(255, 0, 0, 0))
+                    {
+                        right = i;
+                        break;
+                    }
+                }
+                if (right != 0)
+                    break;
+            }
+            return new Rectangle(left, top, right - left, down - top);
+        }
+
+        public static Bitmap GetScaledImage(Bitmap img, Rectangle bbox)
+        {
+            float widthScale = 0, heightScale = 0;
+            if (img.Width != 0)
+                widthScale = (float)img.Width / (float)bbox.Width;
+            if (img.Height != 0)
+                heightScale = (float)img.Height / (float)bbox.Height;
+            var scale = Math.Min(widthScale, heightScale);
+            var bmp = new Bitmap(img.Width, img.Height);
+            using var g = Graphics.FromImage(bmp);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.Clear(Color.White);
+            g.ScaleTransform(scale, scale);
+            g.DrawImage(img, 0, 0, bbox, GraphicsUnit.Pixel);
+            return bmp;
+        }
+
+        public static Bitmap PrepareImage(Bitmap img)
+        {
+            var scaledImage = GetScaledImage(img, FindImageBbox(img));
+            var centeredImage = GetCenteredImage(scaledImage, CenterOfMass(scaledImage));
+            //Draw contours
+            /*var image = centeredScaledImage.ToImage<Gray, byte>();
+            VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
+            Mat hierarhy = new Mat();
+            CvInvoke.FindContours(image, contours, hierarhy, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+            var contoursDict = new Dictionary<int, double>();
+            for (int i = 0; i < contours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(contours[i]);
+                contoursDict.Add(i, area);
+            }
+            var items = contoursDict.OrderByDescending(i => i.Value).Skip(1);
+            foreach (var item in items)
+            {
+                CvInvoke.DrawContours(image, contours, item.Key, new MCvScalar(0, 0, 0));
+            }
+            return image.ToBitmap();*/
+            return centeredImage;
+        }
+
+        public static string ProcessSelector(Bitmap dest)
         {
             var width = dest.Width;
             var height = dest.Height;
