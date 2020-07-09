@@ -24,17 +24,20 @@ namespace OCR
 		Image<Bgr, byte> inputImage = null;
 		Image<Gray, byte> outputImage = null;
 		DocTemplate template;
+		List<int> partitions;
 		List<Rectangle> BBoxes;
 		Size inputImageSize;
 		Bitmap img;
 		string path = "";
 		bool isSaved = false, isSaveInvoked = false;
-		public ConvertedDocumentView(MainForm o, FileView c, ToolStripButton b, List<KeyValuePair<string, string>> pred, DocTemplate t, Size s, string p)
+		public ConvertedDocumentView(MainForm o, FileView c, ToolStripButton b, List<KeyValuePair<string, string>> pred, 
+			List<int> part, DocTemplate t, Size s, string p)
 		{
 			owner = o;
 			caller = c;
 			convertBtn = b;
 			predictions = pred;
+			partitions = part;
 			template = t;
 			inputImageSize = s;
 			path = p;
@@ -72,17 +75,23 @@ namespace OCR
 				int key = int.Parse(item.Key.ToString());
 				tmp.Add(CvInvoke.BoundingRectangle(contours[key]));
 			}
+			var skipItemsCount = 0;
 			tmp.Sort((item1, item2) => item1.Y.CompareTo(item2.Y));
-			foreach (var bbox in tmp)
-            {
-				int w = bbox.Width;
-				int h = bbox.Height;
-				int x = bbox.X + w / 10;
-				int y = bbox.Y + h / 10;
-				w -= 2 * w / 10;
-				h -= 2 * h / 10;
-				BBoxes.Add(new Rectangle(x, y, w, h));
-			}
+			partitions.ForEach(part => {
+				var items = tmp.Skip(skipItemsCount).Take(part).ToList<Rectangle>();
+				items.Sort((item1, item2) => item1.X.CompareTo(item2.X));
+				skipItemsCount += part;
+				foreach (var bbox in items)
+				{
+					int w = bbox.Width;
+					int h = bbox.Height;
+					int x = bbox.X + w / 10;
+					int y = bbox.Y + h / 10;
+					w -= 2 * w / 10;
+					h -= 2 * h / 10;
+					BBoxes.Add(new Rectangle(x, y, w, h));
+				}
+			});
 			for (int i = 0; i < predictions.Count; i++)
             {
 				Replace(predictions.ElementAt(i).Value, BBoxes.ElementAt(i));

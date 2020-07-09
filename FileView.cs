@@ -25,6 +25,7 @@ namespace OCR
 		string filePath = "";
 		string templatePath = "";
 		List<Rectangle> BBoxes;
+		List<int> partitions;
 		List<KeyValuePair<string, string>> predictions;
 		readonly MainForm caller;
 		readonly BackgroundWorker bw;
@@ -39,6 +40,7 @@ namespace OCR
 			RenderDocument(filePath);
 			bw = new BackgroundWorker();
 			BBoxes = new List<Rectangle>();
+			partitions = new List<int>();
 			predictions = new List<KeyValuePair<string, string>>();
 		}
 
@@ -155,7 +157,7 @@ namespace OCR
 			else
 			{
 				convertedDocumentView = new ConvertedDocumentView(caller, this, convertButton, 
-					predictions, template, new Size(inputImage.Width, inputImage.Height), filePath)
+					predictions, partitions, template, new Size(inputImage.Width, inputImage.Height), filePath)
 				{
 					Text = Text,
 					Location = new Point(Location.X + 50, Location.Y + 25),
@@ -185,7 +187,9 @@ namespace OCR
 			{
 				var type = t["type"].ToString();
 				var count = int.Parse(t["count"].ToString());
-				var items = BBoxes.Skip(skipItemsCount).Take(count);
+				partitions.Add(count);
+				var items = BBoxes.Skip(skipItemsCount).Take(count).ToList<Rectangle>();
+				items.Sort((item1, item2) => item1.X.CompareTo(item2.X));
 				skipItemsCount += count;
 				foreach (var bbox in items) 
 				{
