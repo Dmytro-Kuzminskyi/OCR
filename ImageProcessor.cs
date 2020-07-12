@@ -17,29 +17,24 @@ namespace OCR
 {
     class ImageProcessor
     {
-        public static bool CutImage(string filepath, int targetWidth, int targetHeight)
+        public static bool PrepareImageFromFile(string filepath, int targetWidth, int targetHeight, string ext)
         {
-            var jpgInfo = ImageCodecInfo.GetImageEncoders().Where(codecInfo => codecInfo.MimeType == "image/jpeg").First();
-            var image = new Bitmap(filepath);
-            var x = image.Width / 2 - targetWidth;
-            var y = image.Height / 2 - targetHeight;
-            var cropArea = new Rectangle(x, y, 2 * targetWidth, 2 * targetHeight);
-            try
-            {
-                using (EncoderParameters encParams = new EncoderParameters(1))
-                {
-                    var croppedImage = image.Clone(cropArea, image.PixelFormat);
-                    image.Dispose();
-                    encParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)100);
-                    //quality should be in the range [0..100] .. 100 for max, 0 for min (0 best compression)
-                    croppedImage = new Bitmap(croppedImage, new Size(targetWidth, targetHeight));
-                    File.Delete(filepath);
-                    croppedImage.Save(filepath, jpgInfo, encParams);
-                    return true;
-                }
-            }
-            catch { }
-            return false;
+            var img = new Bitmap(filepath);
+            var scaledImage = GetScaledImage(img, FindImageBbox(img));
+            var centeredImage = GetCenteredImage(scaledImage, CenterOfMass(scaledImage));
+            var outputImage = new Bitmap(centeredImage, targetWidth, targetHeight);
+            var tmpPath = Path.Combine(Directory.GetCurrentDirectory(), "temp");
+            if (!Directory.Exists(tmpPath))
+                Directory.CreateDirectory(tmpPath);
+            var setFolder = Directory.GetParent(Directory.GetParent(filepath).FullName).Name;
+            var labelFolder = Directory.GetParent(filepath).Name;
+            if (!Directory.Exists(Path.Combine(tmpPath, setFolder)))
+                Directory.CreateDirectory(Path.Combine(tmpPath, setFolder));
+            if (!Directory.Exists(Path.Combine(tmpPath, setFolder, labelFolder)))
+                Directory.CreateDirectory(Path.Combine(tmpPath, setFolder, labelFolder));
+            var filename = filepath.Substring(filepath.LastIndexOf('\\') + 2);
+            outputImage.Save(Path.Combine(tmpPath, setFolder, labelFolder, filename));
+            return true;
         }
 
         public static int CountBlackPixels(Bitmap b, int startX, int startY, int toX, int toY)
@@ -105,7 +100,7 @@ namespace OCR
                         num++;
                     }
                 }
-            return new Point(sumX / num, sumY / num);
+            return num > 0 ? new Point(sumX / num, sumY / num) : new Point(img.Width / 2 - 1, img.Height / 2 - 1);
         }
 
         private static Bitmap GetCenteredImage(Bitmap img, Point com)
@@ -187,20 +182,25 @@ namespace OCR
 
         public static Bitmap GetScaledImage(Bitmap img, Rectangle bbox)
         {
-            float widthScale = 0, heightScale = 0;
-            if (img.Width != 0)
-                widthScale = (float)img.Width / (float)bbox.Width;
-            if (img.Height != 0)
-                heightScale = (float)img.Height / (float)bbox.Height;
-            var scale = Math.Min(widthScale, heightScale);
-            var bmp = new Bitmap(img.Width, img.Height);
-            using var g = Graphics.FromImage(bmp);
-            g.InterpolationMode = InterpolationMode.NearestNeighbor;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.Clear(Color.White);
-            g.ScaleTransform(scale, scale);
-            g.DrawImage(img, 0, 0, bbox, GraphicsUnit.Pixel);
-            return bmp;
+            try
+            {
+                float widthScale = 0, heightScale = 0;
+                if (img.Width != 0)
+                    widthScale = (float)img.Width / (float)bbox.Width;
+                if (img.Height != 0)
+                    heightScale = (float)img.Height / (float)bbox.Height;
+                var scale = Math.Min(widthScale, heightScale);
+                var bmp = new Bitmap(img.Width, img.Height);
+                using var g = Graphics.FromImage(bmp);
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.White);
+                g.ScaleTransform(scale, scale);
+                g.DrawImage(img, 0, 0, bbox, GraphicsUnit.Pixel);
+                return bmp;
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.StackTrace); }
+            return img;
         }
 
         public static Bitmap PrepareImage(Bitmap img)

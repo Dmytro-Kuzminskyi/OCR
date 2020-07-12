@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using Emgu.CV.Structure;
 
 namespace OCR
 {
@@ -226,7 +228,7 @@ namespace OCR
 						e.Cancel = true;
 						return;
 					}
-					if (!ImageProcessor.CutImage(inputFP, width, height))
+					if (!ImageProcessor.PrepareImageFromFile(inputFP, width, height, extension))
 					{
 						throw new Exception("Error processing the image!");
 					}
@@ -236,9 +238,12 @@ namespace OCR
 						bw.ReportProgress(progress);
 				}
 			}
+			var setFolder = inputFolderPath.Substring(inputFolderPath.LastIndexOf('\\') + 1);
 			for (int k = 0; k < inputDirectories.Length; k++)
 			{
-				var inputFilePaths = Directory.GetFiles(inputDirectories[k] + "\\", "*." + extension);
+				var tmpPath = Path.Combine(Directory.GetCurrentDirectory(), "temp");			
+				var label = inputDirectories[k].Substring(inputDirectories[k].LastIndexOf('\\') + 1);
+				var inputFilePaths = Directory.GetFiles(Path.Combine(tmpPath, setFolder, label) + "\\", "*." + extension);
                 using var fileStream = File.Open(outputFilePath, FileMode.Append, FileAccess.Write);
                 using StreamWriter sw = new StreamWriter(fileStream);
                 foreach (var inputFP in inputFilePaths)
@@ -270,6 +275,7 @@ namespace OCR
                         bw.ReportProgress(progress);
                 }
             }
+			Directory.Delete(Path.Combine(Directory.GetCurrentDirectory(), "temp", setFolder), true);
 		}
 	}
 }
