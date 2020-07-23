@@ -26,10 +26,14 @@ namespace OCR
 		DocTemplate template;
 		List<int> partitions;
 		List<Rectangle> BBoxes;
+		List<Rectangle> BBoxesScaled;
+		Point pointerPosition;
+		Region correctArea;
 		Size inputImageSize;
-		Bitmap img;
+		float scaleX, scaleY;
+		Bitmap initialImage;
 		string path = "";
-		bool isSaved = false, isSaveInvoked = false;
+		bool isSaved = false, isSaveInvoked = false, isCorrectMode = false;
 		public ConvertedDocumentView(MainForm o, FileView c, ToolStripButton b, List<KeyValuePair<string, string>> pred, 
 			List<int> part, DocTemplate t, Size s, string p)
 		{
@@ -50,14 +54,14 @@ namespace OCR
 			List<Rectangle> tmp = new List<Rectangle>();
 			if (template == DocTemplate.PersonEvidence)
             {
-				img = Resources.PEF;
+				initialImage = Resources.PEF;
 			}
 			documentWrapper.Size = inputImageSize;
 			int width = owner.ClientSize.Width > inputImageSize.Width + 16 ? inputImageSize.Width : owner.ClientSize.Width - 28;
 			int height = owner.ClientSize.Height > inputImageSize.Height + 67 ? inputImageSize.Height + 28 : owner.ClientSize.Height - 75;
 			ClientSize = new Size(width, height);
 			MaximumSize = new Size(width + 16, height + 39);
-			inputImage = img.ToImage<Bgr, byte>();
+			inputImage = initialImage.ToImage<Bgr, byte>();
 			outputImage = inputImage.Convert<Gray, byte>().ThresholdBinary(new Gray(100), new Gray(255));
 			VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
 			Mat hierarhy = new Mat();
@@ -93,22 +97,20 @@ namespace OCR
 				}
 			});
 			for (int i = 0; i < predictions.Count; i++)
-            {
-				Replace(predictions.ElementAt(i).Value, BBoxes.ElementAt(i));
-			}
-			documentWrapper.Image = new Bitmap(img, inputImageSize);
-		}
-
-		private void Replace(string prediction, Rectangle replacementArea)
-		{ 
-			if (prediction == null)
-            {
-
-            }
-            else
-            {
-				ImageProcessor.ReplacePrediction(prediction, img, replacementArea);
-			}
+				ImageProcessor.ReplacePrediction(predictions.ElementAt(i).Value, initialImage, BBoxes.ElementAt(i));
+			scaleX = (float)inputImageSize.Width / initialImage.Size.Width;
+			scaleY = (float)inputImageSize.Height / initialImage.Size.Height;
+			documentWrapper.Image = new Bitmap(initialImage, inputImageSize);
+			correctArea = new Region(new Rectangle(new Point(0, 0), documentWrapper.Image.Size));
+			tmp = new List<Rectangle>();
+			BBoxes.ForEach(bbox =>
+			{
+				var rect = new Rectangle((int)(bbox.X * scaleX), (int)(bbox.Y * scaleY),
+					(int)(bbox.Width * scaleX), (int)(bbox.Height * scaleY));
+				tmp.Add(rect);
+				correctArea.Exclude(rect); 
+			});
+			BBoxesScaled = tmp;
 		}
 
 		public void InitiateClosing()
@@ -204,16 +206,56 @@ namespace OCR
 			{
 				pdoc.Print();
 			}
-		}     
+		}
 
         private void DD_Print(object sender, PrintPageEventArgs e)
 		{
-			//double cmToUnits = 100 / 2.54;
 			var img = documentWrapper.Image;
 			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 			e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			e.Graphics.DrawImage(img, e.MarginBounds);
 			img.Dispose();
+		}
+
+		private void CorrectButton_Click(object sender, EventArgs e)
+        {
+			isCorrectMode = !isCorrectMode;
+			if (correctButton.Text == "Correct")
+				correctButton.Text = "Normal";
+            else
+				correctButton.Text = "Correct";
+		}
+
+		private void DocumentWrapper_MouseMove(object sender, MouseEventArgs e)
+		{
+			pointerPosition = e.Location;
+			if (isCorrectMode)
+			{
+				if (!correctArea.IsVisible(pointerPosition))
+					Cursor = Cursors.Hand;
+				else
+					Cursor = Cursors.Default;
+			}
+		}
+
+		private void DocumentWrapper_Click(object sender, EventArgs e)
+		{
+			if (Cursor == Cursors.Hand)
+            {				
+				var bboxIndex = BBoxesScaled.FindIndex(0, bbox => bbox.Contains(pointerPosition));
+				var bbox = BBoxes.ElementAt(bboxIndex);
+				var predType = predictions.ElementAt(bboxIndex).Key;
+				var predValue = predictions.ElementAt(bboxIndex).Value;
+				using var correctionDialog = new CorrectionDialog(predType, predValue);
+				var result = correctionDialog.ShowDialog();
+				if (result == DialogResult.OK)
+                {
+					ImageProcessor.ReplacePrediction(correctionDialog.value, initialImage, bbox, true);
+					documentWrapper.Image = new Bitmap(initialImage, inputImageSize);
+					predictions.RemoveAt(bboxIndex);
+					predictions.Insert(bboxIndex, new KeyValuePair<string, string>(predType, correctionDialog.value));
+				}
+            }
 		}
 	}
 }

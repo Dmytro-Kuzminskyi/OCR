@@ -34,6 +34,7 @@
             this.saveButton = new System.Windows.Forms.ToolStripButton();
             this.saveAsButton = new System.Windows.Forms.ToolStripButton();
             this.printButton = new System.Windows.Forms.ToolStripButton();
+            this.correctButton = new System.Windows.Forms.ToolStripButton();
             this.documentWrapper = new System.Windows.Forms.PictureBox();
             this.workspace = new System.Windows.Forms.Panel();
             this.convertedDocumentToolStrip.SuspendLayout();
@@ -58,7 +59,8 @@
             this.convertedDocumentToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveButton,
             this.saveAsButton,
-            this.printButton});
+            this.printButton,
+            this.correctButton});
             this.convertedDocumentToolStrip.Location = new System.Drawing.Point(0, 0);
             this.convertedDocumentToolStrip.Name = "convertedDocumentToolStrip";
             this.convertedDocumentToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
@@ -98,6 +100,17 @@
             this.printButton.Text = "Print";
             this.printButton.Click += new System.EventHandler(this.PrintButton_Click);
             // 
+            // correctButton
+            // 
+            this.correctButton.AutoToolTip = false;
+            this.correctButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.correctButton.Image = ((System.Drawing.Image)(resources.GetObject("correctButton.Image")));
+            this.correctButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.correctButton.Name = "correctButton";
+            this.correctButton.Size = new System.Drawing.Size(50, 22);
+            this.correctButton.Text = "Correct";
+            this.correctButton.Click += new System.EventHandler(this.CorrectButton_Click);
+            // 
             // documentWrapper
             // 
             this.documentWrapper.Location = new System.Drawing.Point(0, 0);
@@ -106,6 +119,8 @@
             this.documentWrapper.Size = new System.Drawing.Size(0, 0);
             this.documentWrapper.TabIndex = 0;
             this.documentWrapper.TabStop = false;
+            this.documentWrapper.Click += new System.EventHandler(this.DocumentWrapper_Click);
+            this.documentWrapper.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DocumentWrapper_MouseMove);
             // 
             // workspace
             // 
@@ -150,5 +165,6 @@
         private System.Windows.Forms.ToolStripButton saveButton;
         private System.Windows.Forms.ToolStripButton saveAsButton;
         private System.Windows.Forms.ToolStripButton printButton;
+        private System.Windows.Forms.ToolStripButton correctButton;
     }
 }

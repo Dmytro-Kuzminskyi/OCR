@@ -206,24 +206,7 @@ namespace OCR
         public static Bitmap PrepareImage(Bitmap img)
         {
             var scaledImage = GetScaledImage(img, FindImageBbox(img));
-            var centeredImage = GetCenteredImage(scaledImage, CenterOfMass(scaledImage));
-            //Draw contours
-            /*var image = centeredScaledImage.ToImage<Gray, byte>();
-            VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
-            Mat hierarhy = new Mat();
-            CvInvoke.FindContours(image, contours, hierarhy, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
-            var contoursDict = new Dictionary<int, double>();
-            for (int i = 0; i < contours.Size; i++)
-            {
-                double area = CvInvoke.ContourArea(contours[i]);
-                contoursDict.Add(i, area);
-            }
-            var items = contoursDict.OrderByDescending(i => i.Value).Skip(1);
-            foreach (var item in items)
-            {
-                CvInvoke.DrawContours(image, contours, item.Key, new MCvScalar(0, 0, 0));
-            }
-            return image.ToBitmap();*/
+            var centeredImage = GetCenteredImage(scaledImage, CenterOfMass(scaledImage));           
             return centeredImage;
         }
 
@@ -238,7 +221,7 @@ namespace OCR
                 return "true";
         }
 
-        public static void ReplacePrediction(string value, Bitmap dest, Rectangle replacementArea)
+        public static void ReplacePrediction(string value, Bitmap dest, Rectangle replacementArea, bool cleanArea = false)
         {
             Bitmap img;
             ResourceManager rm = Resources.ResourceManager;
@@ -359,13 +342,13 @@ namespace OCR
                     img = null;
                     break;
             }
+            using var g = Graphics.FromImage(dest);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            if (cleanArea)
+                g.FillRectangle(Brushes.White, replacementArea);
             if (img != null)
-            {
-                using var g = Graphics.FromImage(dest);
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawImage(img, new Point(replacementArea.X, replacementArea.Y));
-            }
         }
     }
 }

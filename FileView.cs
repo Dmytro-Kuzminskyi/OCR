@@ -212,9 +212,7 @@ namespace OCR
 			g.InterpolationMode = InterpolationMode.NearestNeighbor;
 			g.SmoothingMode = SmoothingMode.AntiAlias;
 			g.DrawImage(outputImage.ToBitmap(), new Rectangle(new Point(0, 0), new Size(64, 64)), replacementArea, GraphicsUnit.Pixel);
-			bmp.Save(@"E:\before.jpg");
 			var preprocessedImg = ImageProcessor.PrepareImage(bmp);
-			preprocessedImg.Save(@"E:\after.jpg");
 			if (type == "digit")
 			{
 				output = ModelConsumer.PredictDigit(ImageProcessor.ConvertImageToData(preprocessedImg));
@@ -226,7 +224,6 @@ namespace OCR
 			else if (type == "selector")
             {
 				output = ImageProcessor.ProcessSelector(bmp);
-
 			}
 			bmp.Dispose();
 			preprocessedImg.Dispose();
