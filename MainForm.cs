@@ -116,5 +116,11 @@ namespace OCR
 			if (fileView != null)
 				fileView.SetMaximumSize();
 		}
+
+		private void AboutButton_Click(object sender, EventArgs e)
+        {
+			using var aboutWindow = new AboutWindow();
+			aboutWindow.ShowDialog();
+		}
     }
 }

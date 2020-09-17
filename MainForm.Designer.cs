@@ -102,6 +102,7 @@ namespace OCR
             this.aboutButton.Name = "aboutButton";
             this.aboutButton.Size = new System.Drawing.Size(45, 25);
             this.aboutButton.Text = "About";
+            this.aboutButton.Click += new System.EventHandler(this.AboutButton_Click);
             // 
             // fileMenuStrip
             // 
@@ -152,6 +153,7 @@ namespace OCR
             this.Controls.Add(this.topToolStrip);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
