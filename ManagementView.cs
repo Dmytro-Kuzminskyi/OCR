@@ -25,10 +25,8 @@ namespace OCR
             rootDir = Directory.GetCurrentDirectory() + @"\";
             CheckModelAccessability("Digits", Resources.DIGITS_MODEL_PATH);
             trainSetTextBox.GotFocus += (s, e) => { MainForm.HideCaret((s as TextBox).Handle); };
-            testSetTextBox.GotFocus += (s, e) => { MainForm.HideCaret((s as TextBox).Handle); };
             modelMetricsTextBox.GotFocus += (s, e) => { MainForm.HideCaret((s as TextBox).Handle); };
             trainSetTextBox.MouseMove += (s, e) => { (s as TextBox).SelectionLength = 0; };
-            testSetTextBox.MouseMove += (s, e) => { (s as TextBox).SelectionLength = 0; };
             modelMetricsTextBox.MouseMove += (s, e) => { (s as TextBox).SelectionLength = 0; };
         }
 
@@ -72,19 +70,18 @@ namespace OCR
             var path = rootDir + modelPath;
             if (!File.Exists(path))
             {
-                modelStatusLabel.Text = modelClass + " model was not fould!";
+                modelStatusLabel.Text = modelClass + " model was not found!";
                 modelStatusLabel.ForeColor = Color.Red;
             }
             else
             {
-                modelStatusLabel.Text = modelClass + " model was fould!";
+                modelStatusLabel.Text = modelClass + " model was found!";
                 modelStatusLabel.ForeColor = Color.Green;
             }
         }
 
         private void DatasetButton_Click(object sender, EventArgs e)
         {
-            var element = sender as Button;
             using var ofd = new OpenFileDialog
             {
                 InitialDirectory = Environment.SpecialFolder.Desktop.ToString(),
@@ -97,24 +94,9 @@ namespace OCR
             };
             DialogResult result = ofd.ShowDialog();
             if (result == DialogResult.OK)
-            {
-                if (element == trainSetButton)
-                    trainSetTextBox.Text = ofd.FileName;
-                else
-                    testSetTextBox.Text = ofd.FileName;
-            }
+                 trainSetTextBox.Text = ofd.FileName;
             else
-            {
-                if (element == trainSetButton)
-                    trainSetTextBox.Text = "Select trainset...";
-                else
-                    testSetTextBox.Text = "Define testset to see train metrics...";
-            }
-            if (trainSetTextBox.Text == testSetTextBox.Text)
-            {
-                testSetTextBox.Text = "Define testset to see train metrics...";
-                MessageBox.Show("Testset must differs from trainset!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                trainSetTextBox.Text = "Select trainset...";
         }
 
         private void TrainsetTextBox_TextChanged(object sender, EventArgs e)
@@ -137,24 +119,15 @@ namespace OCR
             {
                 if (!bw.IsBusy)
                 {
-                    if (testSetTextBox.Text == "Define testset to see train metrics...")
-                    {
-                        modelMetricsTextBox.ScrollBars = ScrollBars.None;
-                        modelMetricsTextBox.Visible = false;
-                    }
-                    else
-                    {
-                        modelMetricsTextBox.Text = "Wait for model evaluating...";
-                        modelMetricsTextBox.Select(0, 0);
-                        modelMetricsTextBox.ScrollBars = ScrollBars.None;
-                        modelMetricsTextBox.Visible = true;
-                    }
+                    modelMetricsTextBox.Text = "Wait for model evaluating...";
+                    modelMetricsTextBox.Select(0, 0);
+                    modelMetricsTextBox.ScrollBars = ScrollBars.None;
+                    modelMetricsTextBox.Visible = true;
                     bw.DoWork += DoWork;
                     bw.RunWorkerCompleted += WorkCompleted;
                     bw.RunWorkerAsync();
                     trainButton.Enabled = false;
                     trainSetButton.Enabled = false;
-                    testSetButton.Enabled = false;
                     trainProcessLabel.Show();
                     loadingImage.Show();
                 }
@@ -169,7 +142,6 @@ namespace OCR
         {
             trainButton.Enabled = true;
             trainSetButton.Enabled = true;
-            testSetButton.Enabled = true;
             trainProcessLabel.Hide();
             loadingImage.Hide();
             var error = e.Error;
@@ -182,6 +154,8 @@ namespace OCR
                 modelMetricsTextBox.ScrollBars = ScrollBars.Vertical;
                 MessageBox.Show("Model is successfully trained!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 modelMetricsTextBox.Select(0, 0);
+                modelStatusLabel.Text = digitsRadioButton.Checked ? "Digits model was found!" : "Letters model was found";
+                modelStatusLabel.ForeColor = Color.Green;
             }
             bw.DoWork -= DoWork;
             bw.RunWorkerCompleted -= WorkCompleted;
@@ -207,11 +181,8 @@ namespace OCR
                 lr = double.Parse(value);
             }
             var outputPath = rootDir + (digitsRadioButton.Checked ? Resources.DIGITS_MODEL_PATH : Resources.LETTERS_MODEL_PATH);
-            if (testSetTextBox.Text == "Define testset to see train metrics...")
-                ModelBuilder.CreateModel(trainSetTextBox.Text, outputPath, nol, mecpl, lr, noi);
-            else
-                ModelBuilder.CreateModel(trainSetTextBox.Text, testSetTextBox.Text, outputPath, 
-                    modelMetricsTextBox, nol, mecpl, lr, noi);
+            var fraction = double.Parse(testSetFractionTextBox.Text.Substring(0, testSetFractionTextBox.Text.IndexOf(' '))) / 100;
+            ModelBuilder.CreateModel(trainSetTextBox.Text, outputPath, fraction, nol, mecpl, lr, noi, modelMetricsTextBox);
         }
 
         private void TrainerParameters_KeyPress(object sender, KeyPressEventArgs e)

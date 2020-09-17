@@ -8,10 +8,10 @@ namespace OCR
 {
     class ModelBuilder
     {
-        public static void CreateModel(string trainDataPath, string modelOutputPath, int? nol, int? mecpl, double? lr, int noi)
+        public static void CreateModel(string trainDataPath, string modelOutputPath, double fraction, int? nol, int? mecpl, double? lr, int noi, TextBox metricsContainer)
         {
             var mlContext = new MLContext();
-            var trainData = mlContext.Data.LoadFromTextFile(path: trainDataPath,
+            var data = mlContext.Data.LoadFromTextFile(path: trainDataPath,
                                     columns: new[]
                                     {
                                         new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
@@ -19,46 +19,18 @@ namespace OCR
                                     },
                                     hasHeader: false,
                                     separatorChar: ',');
-            var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "InputClass").
-                    Append(mlContext.Transforms.Concatenate("Features", nameof(InputData.PixelValues)));
-            var trainer = mlContext.MulticlassClassification.Trainers.LightGbm(labelColumnName: "Label", 
-                featureColumnName: "Features", numberOfLeaves: nol, minimumExampleCountPerLeaf: mecpl, learningRate: lr, 
-                numberOfIterations: noi);
-            var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedClass", "PredictedLabel"));
-            ITransformer trainedModel = trainingPipeline.Fit(trainData);
-            SaveModel(mlContext, trainedModel, modelOutputPath, trainData.Schema);
-        }
-        public static void CreateModel(string trainDataPath, string testDataPath, string modelOutputPath, 
-            TextBox metricsContainer, int? nol, int? mecpl, double? lr, int noi)
-        {
-            var mlContext = new MLContext();
-            var trainData = mlContext.Data.LoadFromTextFile(path: trainDataPath,
-                                    columns: new[]
-                                    {
-                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
-                                        new TextLoader.Column("InputClass", DataKind.String, 256)
-                                    },
-                                    hasHeader: false,
-                                    separatorChar: ',');
-            var testData = mlContext.Data.LoadFromTextFile(path: testDataPath,
-                                    columns: new[]
-                                    {
-                                        new TextLoader.Column(nameof(InputData.PixelValues), DataKind.Single, 0, 255),
-                                        new TextLoader.Column("InputClass", DataKind.String, 256)
-                                    },
-                                    hasHeader: false,
-                                    separatorChar: ',');
+            var split = mlContext.Data.TrainTestSplit(data, testFraction: fraction);
             var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", "InputClass").
                     Append(mlContext.Transforms.Concatenate("Features", nameof(InputData.PixelValues)));
             var trainer = mlContext.MulticlassClassification.Trainers.LightGbm(labelColumnName: "Label",
-                featureColumnName: "Features", numberOfLeaves: nol, minimumExampleCountPerLeaf: mecpl, learningRate: lr,
+                featureColumnName: "Features", numberOfLeaves: nol, minimumExampleCountPerLeaf: mecpl, learningRate: lr, 
                 numberOfIterations: noi);
             var trainingPipeline = dataProcessPipeline.Append(trainer).Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedClass", "PredictedLabel"));
-            ITransformer trainedModel = trainingPipeline.Fit(trainData);
-            var predictions = trainedModel.Transform(testData);
-            var metrics = mlContext.MulticlassClassification.Evaluate(data: predictions, labelColumnName: "InputClass", scoreColumnName: "Score");
+            ITransformer trainedModel = trainingPipeline.Fit(split.TrainSet);
+            var predictions = trainedModel.Transform(split.TestSet);
+            var metrics = mlContext.MulticlassClassification.Evaluate(data: predictions);
             PrintMulticlassClassificationMetrics(metrics, metricsContainer);
-            SaveModel(mlContext, trainedModel, modelOutputPath, trainData.Schema);
+            SaveModel(mlContext, trainedModel, modelOutputPath, data.Schema);
         }
 
         public static void PrintMulticlassClassificationMetrics(MulticlassClassificationMetrics metrics, TextBox metricsContainer)

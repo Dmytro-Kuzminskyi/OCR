@@ -212,7 +212,7 @@
             this.heightTextBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.heightTextBox.Size = new System.Drawing.Size(50, 22);
             this.heightTextBox.TabIndex = 3;
-            this.heightTextBox.Text = "32 px";
+            this.heightTextBox.Text = "64 px";
             this.heightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.heightTextBox.Enter += new System.EventHandler(this.DimensionTextBox_Enter);
             this.heightTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidationTextBox_KeyPress);
@@ -224,7 +224,7 @@
             this.widthTextBox.Name = "widthTextBox";
             this.widthTextBox.Size = new System.Drawing.Size(50, 22);
             this.widthTextBox.TabIndex = 2;
-            this.widthTextBox.Text = "32 px";
+            this.widthTextBox.Text = "64 px";
             this.widthTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.widthTextBox.Enter += new System.EventHandler(this.DimensionTextBox_Enter);
             this.widthTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidationTextBox_KeyPress);

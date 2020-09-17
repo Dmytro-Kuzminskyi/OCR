@@ -35,9 +35,8 @@
             this.modelStatusLabel = new System.Windows.Forms.Label();
             this.modelSelectorGroupBox = new System.Windows.Forms.GroupBox();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.testSetTextBox = new System.Windows.Forms.TextBox();
-            this.testSetButton = new System.Windows.Forms.Button();
+            this.testSetFractionTextBox = new System.Windows.Forms.TextBox();
+            this.testSetFractionLabel = new System.Windows.Forms.Label();
             this.trainerParametersGroupBox = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.numberOfLeavesLabel = new System.Windows.Forms.Label();
@@ -62,7 +61,6 @@
             this.panel1.SuspendLayout();
             this.modelSelectorGroupBox.SuspendLayout();
             this.panel5.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
             this.trainerParametersGroupBox.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -155,56 +153,36 @@
             // 
             // panel5
             // 
-            this.panel5.Controls.Add(this.tableLayoutPanel1);
-            this.panel5.Controls.Add(this.testSetButton);
+            this.panel5.Controls.Add(this.testSetFractionTextBox);
+            this.panel5.Controls.Add(this.testSetFractionLabel);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel5.Location = new System.Drawing.Point(8, 102);
             this.panel5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel5.MinimumSize = new System.Drawing.Size(505, 39);
             this.panel5.Name = "panel5";
-            this.panel5.Padding = new System.Windows.Forms.Padding(0, 0, 7, 6);
+            this.panel5.Padding = new System.Windows.Forms.Padding(0, 8, 7, 6);
             this.panel5.Size = new System.Drawing.Size(505, 39);
             this.panel5.TabIndex = 6;
             // 
-            // tableLayoutPanel1
+            // testSetFractionTextBox
             // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.testSetTextBox, 0, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(111, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(7, 0, 0, 0);
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 4F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(394, 33);
-            this.tableLayoutPanel1.TabIndex = 3;
+            this.testSetFractionTextBox.Dock = System.Windows.Forms.DockStyle.Left;
+            this.testSetFractionTextBox.Location = new System.Drawing.Point(121, 8);
+            this.testSetFractionTextBox.MaxLength = 2;
+            this.testSetFractionTextBox.Name = "testSetFractionTextBox";
+            this.testSetFractionTextBox.Size = new System.Drawing.Size(36, 22);
+            this.testSetFractionTextBox.TabIndex = 1;
+            this.testSetFractionTextBox.Text = "10 %";
             // 
-            // testSetTextBox
+            // testSetFractionLabel
             // 
-            this.testSetTextBox.BackColor = System.Drawing.SystemColors.Window;
-            this.testSetTextBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.testSetTextBox.Location = new System.Drawing.Point(10, 6);
-            this.testSetTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.testSetTextBox.Name = "testSetTextBox";
-            this.testSetTextBox.ReadOnly = true;
-            this.testSetTextBox.Size = new System.Drawing.Size(367, 22);
-            this.testSetTextBox.TabIndex = 0;
-            this.testSetTextBox.Text = "Define testset to see train metrics...";
-            // 
-            // testSetButton
-            // 
-            this.testSetButton.Dock = System.Windows.Forms.DockStyle.Left;
-            this.testSetButton.Location = new System.Drawing.Point(0, 0);
-            this.testSetButton.Margin = new System.Windows.Forms.Padding(0);
-            this.testSetButton.Name = "testSetButton";
-            this.testSetButton.Size = new System.Drawing.Size(111, 33);
-            this.testSetButton.TabIndex = 2;
-            this.testSetButton.Text = "Select test set";
-            this.testSetButton.UseVisualStyleBackColor = true;
-            this.testSetButton.Click += new System.EventHandler(this.DatasetButton_Click);
+            this.testSetFractionLabel.Dock = System.Windows.Forms.DockStyle.Left;
+            this.testSetFractionLabel.Location = new System.Drawing.Point(0, 8);
+            this.testSetFractionLabel.Name = "testSetFractionLabel";
+            this.testSetFractionLabel.Size = new System.Drawing.Size(121, 25);
+            this.testSetFractionLabel.TabIndex = 0;
+            this.testSetFractionLabel.Text = "Test set fraction:";
+            this.testSetFractionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // trainerParametersGroupBox
             // 
@@ -260,6 +238,7 @@
             this.numberOfLeavesTextBox.Name = "numberOfLeavesTextBox";
             this.numberOfLeavesTextBox.Size = new System.Drawing.Size(36, 22);
             this.numberOfLeavesTextBox.TabIndex = 1;
+            this.numberOfLeavesTextBox.Text = "30";
             this.numberOfLeavesTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TrainerParameters_KeyPress);
             // 
             // minimumExampleCountPerLeafLabel
@@ -285,6 +264,7 @@
             this.minimumExampleCountPerLeafTextBox.Name = "minimumExampleCountPerLeafTextBox";
             this.minimumExampleCountPerLeafTextBox.Size = new System.Drawing.Size(36, 22);
             this.minimumExampleCountPerLeafTextBox.TabIndex = 3;
+            this.minimumExampleCountPerLeafTextBox.Text = "50";
             this.minimumExampleCountPerLeafTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TrainerParameters_KeyPress);
             // 
             // learningRateLabel
@@ -308,6 +288,7 @@
             this.learningRateTextBox.Name = "learningRateTextBox";
             this.learningRateTextBox.Size = new System.Drawing.Size(36, 22);
             this.learningRateTextBox.TabIndex = 5;
+            this.learningRateTextBox.Text = "0.25";
             this.learningRateTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TrainerParameters_KeyPress);
             // 
             // numberOfIterationsLabel
@@ -333,6 +314,7 @@
             this.numberOfIterationsTextBox.Name = "numberOfIterationsTextBox";
             this.numberOfIterationsTextBox.Size = new System.Drawing.Size(36, 22);
             this.numberOfIterationsTextBox.TabIndex = 7;
+            this.numberOfIterationsTextBox.Text = "100";
             this.numberOfIterationsTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TrainerParameters_KeyPress);
             // 
             // panel3
@@ -499,11 +481,11 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Management";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ManagementView_FormClosing);
             this.panel1.ResumeLayout(false);
             this.modelSelectorGroupBox.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
+            this.panel5.PerformLayout();
             this.trainerParametersGroupBox.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
@@ -527,8 +509,6 @@
         private System.Windows.Forms.Label modelStatusLabel;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.TextBox testSetTextBox;
         private System.Windows.Forms.GroupBox trainerParametersGroupBox;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
@@ -546,10 +526,11 @@
         private System.Windows.Forms.TextBox learningRateTextBox;
         private System.Windows.Forms.Label numberOfIterationsLabel;
         private System.Windows.Forms.TextBox numberOfIterationsTextBox;
-        private System.Windows.Forms.Button testSetButton;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TextBox trainSetTextBox;
         private System.Windows.Forms.Button trainSetButton;
-    }
+		private System.Windows.Forms.TextBox testSetFractionTextBox;
+		private System.Windows.Forms.Label testSetFractionLabel;
+	}
 }

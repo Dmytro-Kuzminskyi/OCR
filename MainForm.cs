@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using OCR.Properties;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -18,6 +19,12 @@ namespace OCR
 		public MainForm()
 		{
 			InitializeComponent();
+			openFileButton.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+			openFileButton.Image = Resources.add_file;
+			inputDataButton.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+			inputDataButton.Image = Resources.input_data;
+			managementButton.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+			managementButton.Image = Resources.management;
 		}
 
 		public void CloseFileState()

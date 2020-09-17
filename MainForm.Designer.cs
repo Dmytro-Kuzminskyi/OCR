@@ -1,4 +1,6 @@
-﻿namespace OCR
+﻿using OCR.Properties;
+
+namespace OCR
 {
 	partial class MainForm
 	{
@@ -33,6 +35,7 @@
             this.topToolStrip = new System.Windows.Forms.ToolStrip();
             this.fileButton = new System.Windows.Forms.ToolStripButton();
             this.modelButton = new System.Windows.Forms.ToolStripButton();
+            this.aboutButton = new System.Windows.Forms.ToolStripButton();
             this.fileMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileButton = new System.Windows.Forms.ToolStripMenuItem();
             this.modelMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -50,7 +53,8 @@
             this.topToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.topToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileButton,
-            this.modelButton});
+            this.modelButton,
+            this.aboutButton});
             this.topToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.topToolStrip.Location = new System.Drawing.Point(0, 0);
             this.topToolStrip.Name = "topToolStrip";
@@ -65,7 +69,6 @@
             this.fileButton.AutoToolTip = false;
             this.fileButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.fileButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.fileButton.Image = ((System.Drawing.Image)(resources.GetObject("fileButton.Image")));
             this.fileButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.fileButton.Margin = new System.Windows.Forms.Padding(0);
             this.fileButton.Name = "fileButton";
@@ -87,6 +90,19 @@
             this.modelButton.Text = "Model";
             this.modelButton.Click += new System.EventHandler(this.ModelButton_Click);
             // 
+            // aboutButton
+            // 
+            this.aboutButton.AutoSize = false;
+            this.aboutButton.AutoToolTip = false;
+            this.aboutButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.aboutButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.aboutButton.Image = ((System.Drawing.Image)(resources.GetObject("aboutButton.Image")));
+            this.aboutButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.aboutButton.Margin = new System.Windows.Forms.Padding(0);
+            this.aboutButton.Name = "aboutButton";
+            this.aboutButton.Size = new System.Drawing.Size(45, 25);
+            this.aboutButton.Text = "About";
+            // 
             // fileMenuStrip
             // 
             this.fileMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -96,6 +112,7 @@
             // 
             // openFileButton
             // 
+            this.openFileButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.openFileButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.openFileButton.Name = "openFileButton";
             this.openFileButton.Size = new System.Drawing.Size(107, 22);
@@ -113,6 +130,7 @@
             // 
             // inputDataButton
             // 
+            this.inputDataButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.inputDataButton.Name = "inputDataButton";
             this.inputDataButton.Size = new System.Drawing.Size(153, 22);
             this.inputDataButton.Text = "Input Data";
@@ -120,6 +138,7 @@
             // 
             // managementButton
             // 
+            this.managementButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.managementButton.Name = "managementButton";
             this.managementButton.Size = new System.Drawing.Size(153, 22);
             this.managementButton.Text = "Management";
@@ -157,6 +176,7 @@
 		private System.Windows.Forms.ContextMenuStrip modelMenuStrip;
 		private System.Windows.Forms.ToolStripMenuItem inputDataButton;
 		private System.Windows.Forms.ToolStripMenuItem managementButton;
-	}
+        private System.Windows.Forms.ToolStripButton aboutButton;
+    }
 }
 
